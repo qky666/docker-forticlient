@@ -5,11 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: hybirdcorp/docker-forticlient
     environment:
       - VPNADDR=host:port
       - VPNUSER=me@domain
       - VPNPASS=secret
-      - VPNTIMEOUT=${VPNTIMEOUT:-10}
+      - VPNTIMEOUT=10
     network_mode: "host"
     privileged: true

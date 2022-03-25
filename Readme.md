@@ -57,6 +57,19 @@ sudo route add -net 10.201.0.0/16 $(docker-machine ip fortinet)
 ssh 10.201.8.1
 ```
 
+## VPN Token support
+
+```bash
+# Start the container
+docker-compose up --build -d
+
+# Set token when received
+setvpntoken.sh <token>
+
+# Verify it is connected
+docker-compose logs forticlient
+```
+
 ## Misc
 
 If you don't want to use a docker network, you can find out the container ip once it is started with:

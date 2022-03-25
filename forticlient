@@ -10,17 +10,33 @@ send -- "$env(VPNPASS)\n"
 
 expect -exact "STATUS::Connecting..."
 
-# In case of invalid certificate
-expect -exact "Would you like to connect to this server? (Y/N)" {
-  send -- "Y\n"
-}
-
-# Expect tunnel to actually start
-expect {
-  "STATUS::Tunnel running" {
-  } timeout {
-    send_user -- "Failed to bring tunnel up after $env(VPNTIMEOUT)s\n"
-    exit 1
+while { true } {
+  expect {
+    # In case of invalid certificate
+    "Would you like to connect to this server? (Y/N)" {
+  	  send -- "Y\n"
+    }
+    # In case a token is needed
+    "A FortiToken code is required for SSL-VPN login authentication." {
+      # Clear previos token (if any)
+  	  exec echo "" > /vpntoken.txt
+  	  # Count words in /vpntoken.txt
+  	  set wc [exec cat /vpntoken.txt | wc -w]
+  	  while {$wc == 0} {
+  	    send_user -- "VPN Token not defined yet in /vpntoken.txt\n"
+  	  	exec sleep 1
+  	  	set wc [exec cat /vpntoken.txt | wc -w]
+  	  }
+  	  set vpntoken [exec cat /vpntoken.txt]
+  	  send -- "$vpntoken\n"
+    }
+    # Expect tunnel to actually start
+    "STATUS::Tunnel running" {
+      break
+    } timeout {
+      send_user -- "Failed to bring tunnel up after $env(VPNTIMEOUT)s\n"
+      exit 1
+    }
   }
 }
 
